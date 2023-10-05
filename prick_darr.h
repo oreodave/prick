@@ -29,9 +29,9 @@ typedef struct
 /**
  * UNSAFE!
  *
- * Gets NTH member of DARR, casting result to TYPE.  Does not bounds
- * check and relies on runtime to cast correctly.  Only use when sure
- * that the dynamic array is well formed for this.
+ * Gets NTH member of DARR, casting result to TYPE.  Does no bounds
+ * checking and relies on runtime to cast correctly.  Only use when
+ * sure that the dynamic array is well formed for this.
  *
  * @param DARR: Dynamic array to get member from
  *
@@ -39,7 +39,7 @@ typedef struct
  *
  * @param N: Index of member
  */
-#define PRICK_DARR_AT(DARR, TYPE, N) (((TYPE *)(DARR).data)[N])
+#define PRICK_DARR_AT(DARR, TYPE, N) (((TYPE *)(DARR).data)[N * (DARR).size])
 
 /**
  * Initialises the dynamic array given with PRICK_DARR_DEFAULT_SIZE
@@ -55,7 +55,7 @@ void prick_darr_init(prick_darr_t *, size_t);
  * Frees the memory associated with dynamic array, using the object
  * free function given to free each member of the dynamic array before
  * freeing associated container.  If the free function is NULL, then
- * the only container is freed.
+ * only the container is freed.
  *
  * @param prick_darr_t *: Dynamic array to free
  *
@@ -112,8 +112,8 @@ void prick_darr_append_n(prick_darr_t *, void *, size_t);
  * Writes the element (at pointer) at a specific position in the
  * dynamic array.  Assumes element is of the same type as the members
  * of the dynamic array (hence has the same size in bytes as
- * prick_darr_t.size).  Will fail (i.e. do nothing) if position is out
- * of bounds i.e. more than number of used elements.
+ * prick_darr_t.size).  Will stop if position is out of bounds
+ * i.e. more than number of used elements.
  *
  * @param prick_darr_t *: Dynamic array to insert in
  *
@@ -127,9 +127,9 @@ void prick_darr_write(prick_darr_t *, void *, size_t);
  * Writes array of n elements (referred by pointer) at a specific
  * position in the dynamic array.  Assumes each element is of the same
  * type as the members of the dynamic array (hence has the same size
- * in bytes as prick_darr_t.size).  Will fail (i.e. do nothing) if
- * position is out of bounds, or if position + number of elements is
- * out of bounds i.e. more than number of used elements.
+ * in bytes as prick_darr_t.size).  Will stop if position is out of
+ * bounds, or if position + number of elements is out of bounds
+ * i.e. more than number of used elements.
  *
  * @param prick_darr_t *: Dynamic array to append to
  *
