@@ -113,7 +113,7 @@ void prick_darr_append_n(prick_darr_t *, void *, size_t);
  * dynamic array.  Assumes element is of the same type as the members
  * of the dynamic array (hence has the same size in bytes as
  * prick_darr_t.size).  Will fail (i.e. do nothing) if position is out
- * of bounds.
+ * of bounds i.e. more than number of used elements.
  *
  * @param prick_darr_t *: Dynamic array to insert in
  *
@@ -129,7 +129,7 @@ void prick_darr_write(prick_darr_t *, void *, size_t);
  * type as the members of the dynamic array (hence has the same size
  * in bytes as prick_darr_t.size).  Will fail (i.e. do nothing) if
  * position is out of bounds, or if position + number of elements is
- * out of bounds.
+ * out of bounds i.e. more than number of used elements.
  *
  * @param prick_darr_t *: Dynamic array to append to
  *
@@ -140,5 +140,81 @@ void prick_darr_write(prick_darr_t *, void *, size_t);
  * @param size_t: Index where to start overwriting elements
  */
 void prick_darr_write_n(prick_darr_t *, void *, size_t, size_t);
+
+#ifndef PRICK_DARR_IMPLEMENTATION
+#define PRICK_DARR_IMPLEMENTATION
+
+#include <string.h>
+
+#define __PRICK_DARR_MAX(a, b) ((a) > (b) ? (a) : (b))
+
+void prick_darr_init(prick_darr_t *darr, size_t member_size)
+{
+  if (!darr)
+    return;
+  *darr = (prick_darr_t){
+      .size      = member_size,
+      .used      = 0,
+      .available = PRICK_DARR_DEFAULT_SIZE,
+      .data      = NULL,
+  };
+  darr->data = calloc(1, member_size * PRICK_DARR_DEFAULT_SIZE);
+}
+
+void prick_darr_free(prick_darr_t *darr, void (*mem_free)(void *))
+{
+  if (mem_free)
+    for (size_t i = 0; i < darr->used; ++i)
+      mem_free(darr->data + (i * darr->size));
+  free(darr->data);
+}
+
+void prick_darr_ensure_capacity(prick_darr_t *darr, size_t requested)
+{
+  for (; darr->used + requested > darr->available;
+       darr->available = __PRICK_DARR_MAX(
+           darr->available * PRICK_DARR_ALLOC_MULT, darr->used + requested),
+       darr->data = realloc(darr->data, darr->available * darr->size))
+    continue;
+}
+
+void prick_darr_tighten(prick_darr_t *darr)
+{
+  if (darr->used < darr->available)
+  {
+    darr->data = realloc(darr->data, darr->used * darr->size);
+    darr->used = darr->available;
+  }
+}
+
+void prick_darr_append(prick_darr_t *darr, void *ptr)
+{
+  prick_darr_ensure_capacity(darr, 1);
+  memcpy(darr->data + (darr->used * darr->size), ptr, darr->size);
+  ++darr->used;
+}
+
+void prick_darr_append_n(prick_darr_t *darr, void *ptr, size_t n)
+{
+  prick_darr_ensure_capacity(darr, n);
+  memcpy(darr->data + (darr->used * darr->size), ptr, n * darr->size);
+  darr->used += n;
+}
+
+void prick_darr_write(prick_darr_t *darr, void *ptr, size_t index)
+{
+  if (darr->used <= index)
+    return;
+  memcpy(darr->data + (index * darr->size), ptr, darr->size);
+}
+
+void prick_darr_write_n(prick_darr_t *darr, void *ptr, size_t n, size_t index)
+{
+  if (darr->used <= (n + index))
+    return;
+  memcpy(darr->data + (index * darr->size), ptr, n * darr->size);
+}
+
+#endif
 
 #endif
