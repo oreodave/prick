@@ -1,0 +1,32 @@
+#+title: prick - My C library
+#+author: Aryadev Chavali
+#+description: My standard library of C functionality
+#+date: 2023-10-05
+
+#+begin_quote
+Prick \Prick\, n. [AS. prica, pricca, pricu; akin to LG. prick,
+   pricke, D. prik, Dan. prik, prikke, Sw. prick. Cf. Prick, v.]
+That which pricks, penetrates, or punctures; a sharp and
+slender thing; a pointed instrument; a goad; a spur, etc.;
+a point; a skewer.
+#+end_quote
+- [1913 Webster]
+
+A standard library of C functions and structures that I find really
+useful.  They're in the form of STB-style headers i.e. you can supply
+your own implementation if you so choose, but an implementation can be
+provided by writing ~#define <FLAG>~ in *one* of your source files
+(usually main.c).
+
+To the best of my ability, each library will be independent of the
+others so as to ensure the "just werks" idiom.
+
+* Libraries provided
+* What is that name?
+Why the name?  I wanted to setup a direct contrast with the idea of a
+hammer for any nail: this library is more like a set of spears for
+specific repeated structures, an instrument to grab when necessary and
+use for clear-cut purposes.
+
+(/Well in all honesty, I was going to use the name "guile" after
+"glib" from "glibc" but that's already taken./)
