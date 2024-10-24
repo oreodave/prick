@@ -41,7 +41,10 @@ void vec_ensure_remaining(void **ptr, uint32_t space);
 #include <malloc.h>
 #include <string.h>
 
-#define VEC_MULT  2
+#ifndef VEC_MULT
+#define VEC_MULT 2
+#endif
+
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 
