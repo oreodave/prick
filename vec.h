@@ -36,19 +36,14 @@ void vec_append(void **ptr, void *data, uint32_t size);
 void vec_clone(void **dest, void **src);
 void vec_ensure_remaining(void **ptr, uint32_t space);
 
-#define VEC_IMPL
 #ifdef VEC_IMPL
 
 #include <malloc.h>
 #include <string.h>
 
-#ifndef MAX
+#define VEC_MULT  2
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
-#endif
-
-#ifndef MIN
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
-#endif
 
 void vec_make(void **ptr, uint32_t size)
 {
