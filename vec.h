@@ -71,7 +71,7 @@ void vec_ensure_remaining(void **ptr, uint32_t space)
   if (vec->capacity - vec->size < space)
   {
     void *new_vec = NULL;
-    vec_make(&new_vec, MAX(vec->capacity * 2, vec->size + space));
+    vec_make(&new_vec, MAX(vec->capacity * VEC_MULT, vec->size + space));
     VEC_SIZE(new_vec) = vec->size;
     memcpy(new_vec, *ptr, vec->size);
     vec_free(ptr);
@@ -90,7 +90,7 @@ void vec_append(void **ptr, void *data, uint32_t size)
 {
   vec_ensure_remaining(ptr, size);
   vec_t *vec = VEC_GET(*ptr);
-  memcpy(vec->bytes + vec->size, data, size);
+  memcpy(*ptr + vec->size, data, size);
   vec->size += size;
 }
 
@@ -102,6 +102,7 @@ void vec_clone(void **dest, void **src)
   memcpy(*dest, *src, VEC_SIZE(*src));
   VEC_SIZE(*dest) = VEC_SIZE(*src);
 }
+
 #endif
 
 #endif
