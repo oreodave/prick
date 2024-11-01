@@ -58,6 +58,7 @@ typedef struct Region
   uint32_t size, capacity;
   uint8_t bytes[];
 } region_t;
+#define MIN(A, B) ((A) < (B) ? (A) : (B))
 
 region_t *region_make(uint32_t capacity, region_t *next)
 {
@@ -91,7 +92,7 @@ uint8_t *region_alloc_rec(region_t *region, uint32_t capacity)
   return start;
 }
 
-void region_delete(region_t *region)
+void region_delete_rec(region_t *region)
 {
   while (region)
   {
@@ -130,17 +131,18 @@ uint8_t *arena_realloc(arena_t *arena, uint8_t *pointer, uint32_t old_size,
     // pointer isn't allocated in the arena
     return NULL;
 
+  int cleanup      = 0;
   uint8_t *new_ptr = NULL;
   if (old_size == reg->size && reg->capacity == reg->size)
   {
     // Completely filled region, may as well reallocate
+    cleanup           = 1;
     region_t *new_reg = region_make(new_size * REGION_CAPACITY_MULT, reg->next);
     // Chain this new region in place
     if (prev)
       prev->next = new_reg;
     if (reg == arena->end)
       arena->end = new_reg;
-    free(reg);
     new_ptr = new_reg->bytes;
     new_reg->size += new_size;
   }
@@ -149,13 +151,15 @@ uint8_t *arena_realloc(arena_t *arena, uint8_t *pointer, uint32_t old_size,
     // Allocate a new portion of memory on the arena
     new_ptr = arena_alloc(arena, new_size);
   }
-  memcpy(new_ptr, pointer, old_size);
+  memcpy(new_ptr, pointer, MIN(old_size, new_size));
+  if (cleanup)
+    free(reg);
   return new_ptr;
 }
 
 void arena_free(arena_t *arena)
 {
-  region_delete(arena->beg);
+  region_delete_rec(arena->beg);
   memset(arena, 0, sizeof(*arena));
 }
 
