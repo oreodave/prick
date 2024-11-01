@@ -157,6 +157,15 @@ uint8_t *arena_realloc(arena_t *arena, uint8_t *pointer, uint32_t old_size,
   return new_ptr;
 }
 
+void arena_reset(arena_t *arena)
+{
+  for (region_t *region = arena->beg; region; region = region->next)
+  {
+    region->size = 0;
+    memset(region->bytes, 0, region->capacity);
+  }
+}
+
 void arena_free(arena_t *arena)
 {
   region_delete_rec(arena->beg);
