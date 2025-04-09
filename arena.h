@@ -11,7 +11,7 @@
 
  * Created: 2024-11-01
  * Author: Aryadev Chavali
- * Description: Arena allocator
+ * Description: Arena allocator.
  */
 
 #ifndef ARENA_H
@@ -160,12 +160,9 @@ uint8_t *region_alloc_rec(region_t *region, uint32_t capacity)
 
 void region_delete_rec(region_t *region)
 {
-  while (region)
-  {
-    region_t *next = region->next;
-    free(region);
-    region = next;
-  }
+  for (region_t *next = NULL; region;
+       next = region->next, free(region), region = next)
+    continue;
 }
 
 uint8_t *arena_alloc(arena_t *arena, uint32_t size)
@@ -175,6 +172,7 @@ uint8_t *arena_alloc(arena_t *arena, uint32_t size)
     arena->beg = region_make(size, NULL);
     arena->end = arena->beg;
   }
+
   uint8_t *start = region_alloc_rec(arena->beg, size);
   // if we've attached a new region, end needs to be at that region
   if (arena->end->next)
