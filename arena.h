@@ -185,6 +185,10 @@ uint8_t *arena_alloc(arena_t *arena, uint32_t size)
 uint8_t *arena_realloc(arena_t *arena, uint8_t *pointer, uint32_t old_size,
                        uint32_t new_size)
 {
+  if (!pointer)
+    // Basically the same as allocating at this point
+    return arena_alloc(arena, newsize);
+
   // Firstly find the region the pointer exists in
   region_t *prev, *reg;
   for (prev = NULL, reg = arena->beg;
@@ -193,33 +197,29 @@ uint8_t *arena_realloc(arena_t *arena, uint8_t *pointer, uint32_t old_size,
        prev = reg, reg = reg->next)
     continue;
 
-  if (!reg)
-    // pointer isn't allocated in the arena
-    return NULL;
-
-  int cleanup      = 0;
   uint8_t *new_ptr = NULL;
-  if (old_size == reg->size && reg->capacity == reg->size)
+
+  // pointer isn't allocated in the arena, just allocate a new pointer
+  if (!reg)
+    goto arena_realloc__allocate_new;
+
+  /*
+    If `ptr` is the latest allocation in `reg` and `reg` has enough capacity to
+    handle newsize, then we can adjust `reg` and not have to do any further
+    allocation work.
+
+    This check is not UB because ptr is confirmed to be in reg.
+   */
+  if (ptr + oldsize == reg->bytes + reg->size &&
+      (reg->capacity - reg->size) > (newsize - oldsize))
   {
-    // Completely filled region, may as well reallocate
-    cleanup           = 1;
-    region_t *new_reg = region_make(new_size * REGION_CAPACITY_MULT, reg->next);
-    // Chain this new region in place
-    if (prev)
-      prev->next = new_reg;
-    if (reg == arena->end)
-      arena->end = new_reg;
-    new_ptr = new_reg->bytes;
-    new_reg->size += new_size;
+    reg->size += newsize - oldsize;
+    return ptr;
   }
-  else
-  {
-    // Allocate a new portion of memory on the arena
-    new_ptr = arena_alloc(arena, new_size);
-  }
-  memcpy(new_ptr, pointer, MIN(old_size, new_size));
-  if (cleanup)
-    free(reg);
+
+arena_realloc__allocate_new:
+  new_ptr = arena_alloc(arena, newsize);
+  memcpy(new_ptr, ptr, oldsize);
   return new_ptr;
 }
 
