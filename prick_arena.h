@@ -1,30 +1,30 @@
-/* Copyright (C) 2024 Aryadev Chavali
-
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Unlicense
- * for details.
-
- * You may distribute and modify this code under the terms of the
- * Unlicense, which you should have received a copy of along with this
- * program.  If not, please go to <https://unlicense.org/>.
-
+/* prick_arena.h: An arena implementation.
  * Created: 2024-11-01
  * Author: Aryadev Chavali
- * Description: Arena allocator.
+ * License: see end of file
+ * Commentary:
+
+ To utilise this library, please put:
+    #define PRICK_ARENA_IMPL
+    #include "prick_arena.h"
+ in one of your code units.
+
+ This library defines both:
+ - A simple bump allocator for regions, with the ability to attach more regions
+   via a linked list in case the current region when the current region is full.
+ - A simple arena memory allocator, using the bump allocator for its regions.
+
+ The regions of the arena are arranged in a linked list for simplicity.  As
+ regions aren't reallocated (instead, a new region is generated), they are
+ stable pointers, and may be used throughout a program as long as the underlying
+ arena isn't deleted.
  */
 
-#ifndef ARENA_H
-#define ARENA_H
+#ifndef PRICK_ARENA_H
+#define PRICK_ARENA_H
 
 #include <stdint.h>
 
-/**
-   @brief A single block of memory to be used by an arena.
-
-   @details Blocks of memory arranged in a singly linked list.
-   Each individual node is a bump allocator.
-*/
 typedef struct Region
 {
   struct Region *next;
@@ -32,38 +32,9 @@ typedef struct Region
   uint8_t bytes[];
 } region_t;
 
-/**
-   @brief Allocate a new region on the heap with requested size and a pointer to
-   the next region.
-   @details If capacity is less than REGION_DEFAULT_SIZE, capacity is set to
-   REGION_DEFAULT_SIZE.
- */
 region_t *region_make(uint32_t capacity, region_t *next);
-
-/**
-   @brief Allocate memory of requested size on the region.
-   @details If the region cannot fit the requested size, then return NULL.
-   Otherwise return a pointer to the start of the allocated memory, incrementing
-   the region size appropriately.
- */
 uint8_t *region_alloc_flat(region_t *region, uint32_t size);
-
-/**
-   @brief Allocate memory of requested size on the region.
-   @details Iterates through the linked list of regions to find an appropriately
-   sized region for the requested size, allocating a new region if one cannot be
-   found.  This new region will have capacity at least size *
-   REGION_CAPACITY_MULT.
-
-   Returns a pointer to the start of the allocated memory, incrementing the
-   appropriate region's size.
- */
 uint8_t *region_alloc_rec(region_t *region, uint32_t size);
-
-/**
-   @brief Delete a region, freeing its memory.
-   @details Will free all regions following it in the linked list.
- */
 void region_delete_rec(region_t *region);
 
 typedef struct
@@ -71,46 +42,13 @@ typedef struct
   region_t *beg, *end;
 } arena_t;
 
-/**
-   @brief Allocate memory of requested size in the arena, returning a pointer to
-   the start of it.
-   @details Uses region_alloc_rec internally to allocate the memory required.
-   arena->beg and arena->end are set appropriately for this task.
- */
 uint8_t *arena_alloc(arena_t *arena, uint32_t size);
-
-/**
-   @brief Reallocate buffer of old_size to a buffer of new_size in the
-   arena, returning a pointer to the start of the new buffer.
-
-   @details If the pointer is not allocated in the arena, return NULL.  If the
-   pointer and old_size cover a complete region reallocate the region itself to
-   fit the newly requested size, relinking it in the linked list.  Otherwise,
-   allocate as per usual.
-
-   The contents of the old memory are copied into the new buffer.  If old_size >
-   new_size, only new_size bytes will be copied from the old buffer into the new
-   one.
- */
 uint8_t *arena_realloc(arena_t *arena, uint8_t *pointer, uint32_t old_size,
                        uint32_t new_size);
-
-/**
-   @brief Reset the arena for reuse.
-
-   @details Sets all regions to default values, setting size to 0.  No memory is
-   deleted in this operation.
- */
 void arena_reset(arena_t *arena);
-
-/**
-   @brief Free the memory associated with the arena.
-
-   @details Deletes all regions of memory associated in the arena.
- */
 void arena_free(arena_t *arena);
 
-#ifdef ARENA_IMPL
+#ifdef PRICK_ARENA_IMPL
 
 #include <malloc.h>
 #include <string.h>
@@ -239,3 +177,15 @@ void arena_free(arena_t *arena)
 #endif
 
 #endif
+/* Copyright (C) 2024 Aryadev Chavali
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Unlicense
+ * for details.
+
+ * You may distribute and modify this code under the terms of the
+ * Unlicense, which you should have received a copy of along with this
+ * program.  If not, please go to <https://unlicense.org/>.
+
+ */
