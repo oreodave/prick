@@ -1,0 +1,21 @@
+#+begin_example
+┌──────────────────────────────────┐
+│  _____  _____  _____ _____ _  __ │
+│ |  __ \|  __ \|_   _/ ____| |/ / │
+│ | |__) | |__) | | || |    | ' /  │
+│ |  ___/|  _  /  | || |    |  <   │
+│ | |    | | \ \ _| || |____| . \  │
+│ |_|    |_|  \_\_____\_____|_|\_\ │
+└──────────────────────────────────┘
+#+end_example
+
+A set of STB-style header-only libraries for common data structures
+and algorithms that I may require while working on a C code base.  The
+idea is to be as close to "plug-and-play" as possible.
+
+All you need to do is copy the relevant header files over to your
+project, then setup the implementation code within one code unit by:
+#+begin_src c
+#define <LIB>_IMPL
+#include "./<lib.h>"
+#+end_src
