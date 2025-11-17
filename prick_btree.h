@@ -25,12 +25,22 @@ typedef struct BNode
 } bnode_t;
 
 typedef int (*bnode_comp_fn)(void *, void *);
-typedef bnode_t *(*bnode_allocator_fn)();
+typedef bnode_t *(*bnode_alloc_fn)();
 typedef void (*bnode_free_fn)(bnode_t *);
 
-bnode_t *bnode_insert(bnode_t *node, void *value, bnode_comp_fn comparator,
-                      bnode_allocator_fn allocator);
-void bnode_free(bnode_t *btree, bnode_free_fn);
+typedef struct
+{
+  bnode_t *root;
+  bnode_comp_fn comp;
+  bnode_alloc_fn alloc;
+  bnode_free_fn free;
+} btree_t;
+
+void btree_init(btree_t *tree, bnode_comp_fn comparator,
+                bnode_alloc_fn allocator, bnode_free_fn free);
+bnode_t *btree_insert(btree_t *tree, void *value);
+void btree_free(btree_t *tree);
+
 void bnode_right_rotate(bnode_t **node);
 void bnode_left_rotate(bnode_t **node);
 void bnode_print(FILE *fp, bnode_t *root);
@@ -39,19 +49,30 @@ void bnode_print(FILE *fp, bnode_t *root);
 
 #include <stdlib.h>
 
-bnode_t *bnode_insert(bnode_t *node, void *value, bnode_comp_fn comparator,
-                      bnode_allocator_fn allocator)
+void btree_init(btree_t *tree, bnode_comp_fn comparator,
+                bnode_alloc_fn allocator, bnode_free_fn free)
+{
+  if (tree)
+  {
+    tree->root  = NULL;
+    tree->comp  = comparator;
+    tree->alloc = allocator;
+    tree->free  = free;
+  }
+}
+
+bnode_t *bnode_insert(bnode_t *node, btree_t *tree, void *value)
 {
   if (!node)
   {
-    node        = allocator();
+    node        = tree->alloc();
     node->value = value;
     node->left  = NULL;
     node->right = NULL;
     return node;
   }
 
-  int comp              = comparator(value, node->value);
+  int comp              = tree->comp(value, node->value);
   bnode_t **picked_node = NULL;
   if (comp < 0)
     picked_node = &node->left;
@@ -59,16 +80,22 @@ bnode_t *bnode_insert(bnode_t *node, void *value, bnode_comp_fn comparator,
     picked_node = &node->right;
 
   if (*picked_node)
-    bnode_insert(*picked_node, value, comparator, allocator);
+    bnode_insert(*picked_node, tree, value);
   else
   {
-    *picked_node          = allocator();
+    *picked_node          = tree->alloc();
     picked_node[0]->value = value;
     picked_node[0]->left  = NULL;
     picked_node[0]->right = NULL;
   }
 
   return node;
+}
+
+bnode_t *btree_insert(btree_t *tree, void *value)
+{
+  tree->root = bnode_insert(tree->root, tree, value);
+  return tree->root;
 }
 
 void bnode_free(bnode_t *bnode, bnode_free_fn free_fn)
@@ -81,6 +108,14 @@ void bnode_free(bnode_t *bnode, bnode_free_fn free_fn)
   free_fn(bnode);
   bnode_free(left, free_fn);
   bnode_free(right, free_fn);
+}
+
+void btree_free(btree_t *tree)
+{
+  if (!tree)
+    return;
+  bnode_free(tree->root, tree->free);
+  tree->root = NULL;
 }
 
 void bnode_right_rotate(bnode_t **node)
