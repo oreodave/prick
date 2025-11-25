@@ -58,6 +58,11 @@ void prick_btree_init(prick_btree_t *tree, prick_bnode_comp_fn comparator,
                       prick_bnode_alloc_fn allocator, prick_bnode_free_fn free,
                       prick_print_fn print)
 {
+  // NOTE: These NEED to be supplied.
+  assert(comparator);
+  assert(allocator);
+  assert(free);
+  assert(print);
   if (tree)
   {
     tree->root  = NULL;
