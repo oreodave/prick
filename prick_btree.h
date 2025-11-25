@@ -47,7 +47,7 @@ void prick_btree_free(prick_btree_t *tree);
 
 void prick_bnode_right_rotate(prick_bnode_t **node);
 void prick_bnode_left_rotate(prick_bnode_t **node);
-void prick_bnode_print(FILE *fp, prick_bnode_t *root, prick_print_fn print);
+void prick_bnode_print(FILE *fp, prick_print_fn print, prick_bnode_t *root);
 
 #ifdef PRICK_BTREE_IMPL
 
@@ -119,7 +119,7 @@ void prick_btree_print(FILE *fp, prick_btree_t *tree)
   }
   else
   {
-    prick_bnode_print(fp, tree->root, tree->print);
+    prick_bnode_print(fp, tree->print, tree->root);
   }
 }
 
@@ -171,7 +171,7 @@ void prick_bnode_left_rotate(prick_bnode_t **node)
   }
 }
 
-void prick_bnode_print(FILE *fp, prick_bnode_t *root, prick_print_fn print)
+void prick_bnode_print(FILE *fp, prick_print_fn print, prick_bnode_t *root)
 {
   if (!root)
     return;
@@ -180,13 +180,13 @@ void prick_bnode_print(FILE *fp, prick_bnode_t *root, prick_print_fn print)
   if (root->left)
   {
     fprintf(fp, " l");
-    prick_bnode_print(fp, root->left, print);
+    prick_bnode_print(fp, print, root->left);
   }
 
   if (root->right)
   {
     fprintf(fp, " r");
-    prick_bnode_print(fp, root->right, print);
+    prick_bnode_print(fp, print, root->right);
   }
 
   fprintf(fp, ")");
