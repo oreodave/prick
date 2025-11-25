@@ -18,39 +18,39 @@
 
 #include <stdio.h>
 
-typedef struct BNode
+typedef struct Prick_Bnode
 {
   void *value;
-  struct BNode *left, *right;
-} bnode_t;
+  struct Prick_Bnode *left, *right;
+} prick_bnode_t;
 
-typedef int (*bnode_comp_fn)(void *, void *);
-typedef bnode_t *(*bnode_alloc_fn)();
-typedef void (*bnode_free_fn)(bnode_t *);
+typedef int (*prick_bnode_comp_fn)(void *, void *);
+typedef prick_bnode_t *(*prick_bnode_alloc_fn)();
+typedef void (*prick_bnode_free_fn)(prick_bnode_t *);
 
 typedef struct
 {
-  bnode_t *root;
-  bnode_comp_fn comp;
-  bnode_alloc_fn alloc;
-  bnode_free_fn free;
-} btree_t;
+  prick_bnode_t *root;
+  prick_bnode_comp_fn comp;
+  prick_bnode_alloc_fn alloc;
+  prick_bnode_free_fn free;
+} prick_btree_t;
 
-void btree_init(btree_t *tree, bnode_comp_fn comparator,
-                bnode_alloc_fn allocator, bnode_free_fn free);
-bnode_t *btree_insert(btree_t *tree, void *value);
-void btree_free(btree_t *tree);
+void prick_btree_init(prick_btree_t *tree, prick_bnode_comp_fn comparator,
+                      prick_bnode_alloc_fn allocator, prick_bnode_free_fn free);
+prick_bnode_t *prick_btree_insert(prick_btree_t *tree, void *value);
+void prick_btree_free(prick_btree_t *tree);
 
-void bnode_right_rotate(bnode_t **node);
-void bnode_left_rotate(bnode_t **node);
-void bnode_print(FILE *fp, bnode_t *root);
+void prick_bnode_right_rotate(prick_bnode_t **node);
+void prick_bnode_left_rotate(prick_bnode_t **node);
+void prick_bnode_print(FILE *fp, prick_bnode_t *root);
 
 #ifdef PRICK_BTREE_IMPL
 
 #include <stdlib.h>
 
-void btree_init(btree_t *tree, bnode_comp_fn comparator,
-                bnode_alloc_fn allocator, bnode_free_fn free)
+void prick_btree_init(prick_btree_t *tree, prick_bnode_comp_fn comparator,
+                      prick_bnode_alloc_fn allocator, prick_bnode_free_fn free)
 {
   if (tree)
   {
@@ -61,7 +61,8 @@ void btree_init(btree_t *tree, bnode_comp_fn comparator,
   }
 }
 
-bnode_t *bnode_insert(bnode_t *node, btree_t *tree, void *value)
+prick_bnode_t *prick_bnode_insert(prick_bnode_t *node, prick_btree_t *tree,
+                                  void *value)
 {
   if (!node)
   {
@@ -72,15 +73,15 @@ bnode_t *bnode_insert(bnode_t *node, btree_t *tree, void *value)
     return node;
   }
 
-  int comp              = tree->comp(value, node->value);
-  bnode_t **picked_node = NULL;
+  int comp                    = tree->comp(value, node->value);
+  prick_bnode_t **picked_node = NULL;
   if (comp < 0)
     picked_node = &node->left;
   else
     picked_node = &node->right;
 
   if (*picked_node)
-    bnode_insert(*picked_node, tree, value);
+    prick_bnode_insert(*picked_node, tree, value);
   else
   {
     *picked_node          = tree->alloc();
@@ -92,38 +93,38 @@ bnode_t *bnode_insert(bnode_t *node, btree_t *tree, void *value)
   return node;
 }
 
-bnode_t *btree_insert(btree_t *tree, void *value)
+prick_bnode_t *prick_btree_insert(prick_btree_t *tree, void *value)
 {
-  tree->root = bnode_insert(tree->root, tree, value);
+  tree->root = prick_bnode_insert(tree->root, tree, value);
   return tree->root;
 }
 
-void bnode_free(bnode_t *bnode, bnode_free_fn free_fn)
+void prick_bnode_free(prick_bnode_t *bnode, prick_bnode_free_fn free_fn)
 {
   if (!bnode)
     return;
-  bnode_t *left  = bnode->left;
-  bnode_t *right = bnode->right;
+  prick_bnode_t *left  = bnode->left;
+  prick_bnode_t *right = bnode->right;
 
   free_fn(bnode);
-  bnode_free(left, free_fn);
-  bnode_free(right, free_fn);
+  prick_bnode_free(left, free_fn);
+  prick_bnode_free(right, free_fn);
 }
 
-void btree_free(btree_t *tree)
+void prick_btree_free(prick_btree_t *tree)
 {
   if (!tree)
     return;
-  bnode_free(tree->root, tree->free);
+  prick_bnode_free(tree->root, tree->free);
   tree->root = NULL;
 }
 
-void bnode_right_rotate(bnode_t **node)
+void prick_bnode_right_rotate(prick_bnode_t **node)
 {
   if (!node || !*node)
     return;
 
-  bnode_t *left = (*node)->left;
+  prick_bnode_t *left = (*node)->left;
   if (left)
   {
     (*node)->left = left->right;
@@ -132,12 +133,12 @@ void bnode_right_rotate(bnode_t **node)
   }
 }
 
-void bnode_left_rotate(bnode_t **node)
+void prick_bnode_left_rotate(prick_bnode_t **node)
 {
   if (!node || !*node)
     return;
 
-  bnode_t *right = (*node)->right;
+  prick_bnode_t *right = (*node)->right;
   if (right)
   {
     (*node)->right = right->left;
@@ -146,7 +147,7 @@ void bnode_left_rotate(bnode_t **node)
   }
 }
 
-void bnode_print(FILE *fp, bnode_t *root)
+void prick_bnode_print(FILE *fp, prick_bnode_t *root)
 {
   if (!root)
     return;
@@ -154,13 +155,13 @@ void bnode_print(FILE *fp, bnode_t *root)
   if (root->left)
   {
     fprintf(fp, " ");
-    bnode_print(fp, root->left);
+    prick_bnode_print(fp, root->left);
   }
 
   if (root->right)
   {
     fprintf(fp, " ");
-    bnode_print(fp, root->right);
+    prick_bnode_print(fp, root->right);
   }
 
   fprintf(fp, ")");
