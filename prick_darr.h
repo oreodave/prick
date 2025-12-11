@@ -30,87 +30,87 @@ typedef struct
 {
   uint32_t size, capacity;
   uint8_t bytes[];
-} darr_t;
+} prick_darr_t;
 
-#define DARR_GET(P)  (((darr_t *)(P)) - 1)
-#define DARR_SIZE(P) (DARR_GET(P)->size)
-#define DARR_CAP(P)  (DARR_GET(P)->capacity)
+#define PRICK_DARR_GET(P)  (((prick_darr_t *)(P)) - 1)
+#define PRICK_DARR_SIZE(P) (PRICK_DARR_GET(P)->size)
+#define PRICK_DARR_CAP(P)  (PRICK_DARR_GET(P)->capacity)
 
-void darr_make(void **ptr, uint32_t size);
-void darr_free(void **ptr);
-void darr_append_byte(void **ptr, uint8_t byte);
-void darr_append(void **ptr, void *data, uint32_t size);
-void darr_clone(void **dest, void **src);
-void darr_ensure_remaining(void **ptr, uint32_t space);
+void prick_darr_make(void **ptr, uint32_t size);
+void prick_darr_free(void **ptr);
+void prick_darr_append_byte(void **ptr, uint8_t byte);
+void prick_darr_append(void **ptr, void *data, uint32_t size);
+void prick_darr_clone(void **dest, void **src);
+void prick_darr_ensure_remaining(void **ptr, uint32_t space);
 
 #ifdef PRICK_DARR_IMPL
 
-#include <malloc.h>
 #include <string.h>
 
-#ifndef DARR_MULT
-#define DARR_MULT 2
+#ifndef PRICK_DARR_MULT
+#define PRICK_DARR_MULT 2
 #endif
 
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 
-void darr_make(void **ptr, uint32_t size)
+void prick_darr_make(void **ptr, uint32_t size)
 {
   if (!ptr)
     return;
-  darr_t *darrtor   = calloc(1, sizeof(*darrtor) + size);
-  darrtor->size     = 0;
-  darrtor->capacity = size;
-  *ptr              = (darrtor + 1);
+  prick_darr_t *darr = calloc(1, sizeof(*darr) + size);
+  darr->size         = 0;
+  darr->capacity     = size;
+  *ptr               = (darr + 1);
 }
 
-void darr_free(void **data)
+void prick_darr_free(void **data)
 {
   if (!data || !*data)
     return;
-  free(DARR_GET(*data));
+  free(PRICK_DARR_GET(*data));
   *data = NULL;
 }
 
-void darr_ensure_remaining(void **ptr, uint32_t space)
+void prick_darr_ensure_remaining(void **ptr, uint32_t space)
 {
   if (!ptr || !*ptr)
     return;
-  darr_t *darr = DARR_GET(*ptr);
+  prick_darr_t *darr = PRICK_DARR_GET(*ptr);
   if (darr->capacity - darr->size < space)
   {
     void *new_darr = NULL;
-    darr_make(&new_darr, MAX(darr->capacity * DARR_MULT, darr->size + space));
-    DARR_SIZE(new_darr) = darr->size;
+    prick_darr_make(&new_darr,
+                    MAX(darr->capacity * PRICK_DARR_MULT, darr->size + space));
+    PRICK_DARR_SIZE(new_darr) = darr->size;
     memcpy(new_darr, *ptr, darr->size);
-    darr_free(ptr);
+    prick_darr_free(ptr);
     *ptr = new_darr;
   }
 }
 
-void darr_append_byte(void **ptr, uint8_t byte)
+void prick_darr_append_byte(void **ptr, uint8_t byte)
 {
-  darr_ensure_remaining(ptr, 1);
-  darr_t *darr              = DARR_GET(*ptr);
+  prick_darr_ensure_remaining(ptr, 1);
+  prick_darr_t *darr        = PRICK_DARR_GET(*ptr);
   darr->bytes[darr->size++] = byte;
 }
 
-void darr_append(void **ptr, void *data, uint32_t size)
+void prick_darr_append(void **ptr, void *data, uint32_t size)
 {
-  darr_ensure_remaining(ptr, size);
-  darr_t *darr = DARR_GET(*ptr);
+  prick_darr_ensure_remaining(ptr, size);
+  prick_darr_t *darr = PRICK_DARR_GET(*ptr);
   memcpy(*ptr + darr->size, data, size);
   darr->size += size;
 }
 
-void darr_clone(void **dest, void **src)
+void prick_darr_clone(void **dest, void **src)
 {
   if (!dest || !src || !*src)
     return;
-  darr_make(dest, DARR_SIZE(*src));
-  memcpy(*dest, *src, DARR_SIZE(*src));
-  DARR_SIZE(*dest) = DARR_SIZE(*src);
+  prick_darr_make(dest, PRICK_DARR_SIZE(*src));
+  memcpy(*dest, *src, PRICK_DARR_SIZE(*src));
+  PRICK_DARR_SIZE(*dest) = PRICK_DARR_SIZE(*src);
 }
 
 #endif
