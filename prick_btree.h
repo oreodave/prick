@@ -176,7 +176,7 @@ void prick_bnode_print(FILE *fp, prick_print_fn print, prick_bnode_t *root)
   if (!root)
     return;
   fprintf(fp, "(");
-  print(fp, root->value);
+  print(root->value);
   if (root->left)
   {
     fprintf(fp, " l");
