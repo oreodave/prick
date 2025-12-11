@@ -9,16 +9,16 @@
     #include "prick_darr.h"
  in one of your code units.
 
- This library defines a dynamic array purely on the heap.  We split the one
- dynamic array allocation into two parts: the metadata, and the actual data.
- Consumers of the library will only ever need to deal with the latter component
- i.e. they'll only ever have access to the data they require.
+ This library defines a dynamic array purely on the heap.  Both the raw data for
+ the array as well as the metadata are in one allocation.  Consumers of the
+ library will only ever need to deal with the former component i.e. they'll only
+ deal with the raw data pointer.
 
- Unfortuntely this does mean that the underlying data pointer is _not_ stable
- during capacity reallocation, as we're allocating a whole new pointer with the
- correct size.  Therefore, if you're expecting the array to grow during the
- runtime of your program, you should ensure any pointers to components of it are
- updated as they will otherwise be dangling.
+ Unfortuntely this does mean that the overall pointer to the vector is _not_
+ stable during capacity reallocation, as on reallocation we allocate a whole new
+ area on the heap and copy over the data.  Therefore, if you're expecting the
+ array to grow during the runtime of your program, you should ensure any
+ pointers to components of it are updated as they will otherwise be dangling.
  */
 
 #ifndef PRICK_DARR_H
