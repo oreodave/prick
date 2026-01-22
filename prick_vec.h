@@ -27,6 +27,7 @@
 #define PRICK_VEC_H
 
 #include <assert.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #define PRICK_VEC_INLINE_CAPACITY 32
