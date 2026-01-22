@@ -19,6 +19,9 @@
  area on the heap and copy over the data.  Therefore, if you're expecting the
  array to grow during the runtime of your program, you should ensure any
  pointers to components of it are updated as they will otherwise be dangling.
+
+ You may want to consider prick_vec.h if you want to more explicit control of
+ the dynamic array, and would like a stable pointer to the container itself.
  */
 
 #ifndef PRICK_DARR_H
