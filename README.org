@@ -9,13 +9,32 @@
 └──────────────────────────────────┘
 #+end_example
 
-A set of STB-style header-only libraries for common data structures
-and algorithms that I may require while working on a C code base.  The
-idea is to be as close to "plug-and-play" as possible.
+A set of libraries that attempt to reduce boilerplate for the
+programming languages I use.  The idea is for each library to be "plug
+and play", which means complying with the following rules:
+- A library is composed of a single file
+- A library is only dependent on the core utilities provided by the
+  language i.e. they cannot be dependent on each other.
+- A library should be structured to allow easy reading and extraction
+  of functionality if and when required.
 
-All you need to do is copy the relevant header files over to your
-project, then setup the implementation code within one code unit by:
+These rules allow any library to be near trivial to plug into a
+project - just copy over the file and utilise it.  See below for more
+details on the libraries provided for each language.  Happy coding!
+
+* C
+The PRICK libraries for C are STB-style header-only libraries.  All
+you need to do is copy the relevant header file for a library over to
+your project, then setup the implementation code within one (1) code
+unit:
 #+begin_src c
 #define <LIB>_IMPL
 #include "./<lib.h>"
 #+end_src
+
+See the commentary of the library for specific details regarding this.
+* Common Lisp
+The PRICK libraries for Common Lisp each have a ~defpackage~ at the
+top of the file.  You may move this to your ~packages.lisp~ if you
+have one.  The implementation is stored within the package, in the
+same file.
