@@ -53,7 +53,7 @@ If END is not given, return interval [0, START)."
 
 i.e. (remove-at-indices indices (l-1...l-m)) => (l_x where x is not in indices)."
   (declare (type list indices)
-           (type lst sequence))
+           (type sequence lst))
   (loop :for i :from 0 :to (1- (length lst))
         :for item :in (coerce lst 'list)
         :if (not (member i indices))
