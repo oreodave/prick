@@ -31,7 +31,7 @@
    ;; Strictly typed functions and function calling
    :-> :fn :call-rev))
 
-(in-package #:prick-macros)
+(in-package #:prick.macros)
 
 (defun --transform-symbols-to-unary (form)
   (if (symbolp form)
