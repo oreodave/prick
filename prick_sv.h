@@ -47,23 +47,23 @@ prick_sv_t prick_sv_while(prick_sv_t, const char *accept);
 
 prick_sv_t prick_sv_chop_left(prick_sv_t sv, uint64_t size)
 {
-  if (prick_sv.size <= size)
+  if (sv.size <= size)
     return PRICK_SV(NULL, 0);
-  return PRICK_SV(prick_sv.data + size, prick_sv.size - size);
+  return PRICK_SV(sv.data + size, sv.size - size);
 }
 
 prick_sv_t prick_sv_chop_right(prick_sv_t sv, uint64_t size)
 {
-  if (prick_sv.size <= size)
+  if (sv.size <= size)
     return PRICK_SV(NULL, 0);
-  return PRICK_SV(prick_sv.data, prick_sv.size - size);
+  return PRICK_SV(sv.data, sv.size - size);
 }
 
 prick_sv_t prick_sv_truncate(prick_sv_t sv, uint64_t newsize)
 {
-  if (newsize > prick_sv.size)
+  if (newsize > sv.size)
     return PRICK_SV(NULL, 0);
-  return PRICK_SV(prick_sv.data, newsize);
+  return PRICK_SV(sv.data, newsize);
 }
 
 prick_sv_t prick_sv_substr(prick_sv_t sv, uint64_t position, uint64_t size)
@@ -74,12 +74,11 @@ prick_sv_t prick_sv_substr(prick_sv_t sv, uint64_t position, uint64_t size)
 
 prick_sv_t prick_sv_till(prick_sv_t sv, const char *reject)
 {
-  if (prick_sv.size == 0 || !prick_sv.data)
+  if (sv.size == 0 || !sv.data)
     return PRICK_SV(NULL, 0);
 
   uint64_t offset;
-  for (offset = 0;
-       offset < prick_sv.size && strchr(reject, prick_sv.data[offset]) == NULL;
+  for (offset = 0; offset < sv.size && strchr(reject, sv.data[offset]) == NULL;
        ++offset)
     continue;
 
@@ -88,12 +87,11 @@ prick_sv_t prick_sv_till(prick_sv_t sv, const char *reject)
 
 prick_sv_t prick_sv_while(prick_sv_t sv, const char *accept)
 {
-  if (prick_sv.size == 0 || !prick_sv.data)
+  if (sv.size == 0 || !sv.data)
     return PRICK_SV(NULL, 0);
 
   uint64_t offset;
-  for (offset = 0;
-       offset < prick_sv.size && strchr(accept, prick_sv.data[offset]) != NULL;
+  for (offset = 0; offset < sv.size && strchr(accept, sv.data[offset]) != NULL;
        ++offset)
     continue;
 
