@@ -12,6 +12,9 @@
  This is a simple read-only string view library.  It defines some extremely
  common functions you'd expect for a string view library, excluding any that
  require allocation.
+
+ Tasks:
+ - TODO: QoL shorthand macro.
  */
 
 #ifndef PRICK_SV_H

@@ -15,6 +15,7 @@
  Tasks:
  - TODO: Pack user custom functions (allocate, comparison, etc) into a
    structure.
+ - TODO: QoL shorthand macro.
  */
 
 #ifndef PRICK_BTREE_H
