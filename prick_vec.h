@@ -20,7 +20,10 @@
  PRICK_VEC_INLINE_CAPACITY).  This makes lookup _even faster_ (no derefence and
  possibility of the entire vector existing in the CPU cache) and allows us to
  avoid allocation for smaller use cases.  If the number of elements exceeds
- PRICK_VEC_INLINE_CAPACITY, we utilise the allocator.
+ PRICK_VEC_INLINE_CAPACITY, we utilise the generic memory allocator (malloc).
+
+ Tasks:
+ - TODO: Provide generic allocator support.
  */
 
 #ifndef PRICK_VEC_H
@@ -49,11 +52,13 @@ static_assert(sizeof(prick_vec_t) == 64,
 
 void prick_vec_append(prick_vec_t *vec, const void *const ptr, uint64_t size);
 void prick_vec_append_byte(prick_vec_t *vec, uint8_t byte);
-void *prick_vec_data(prick_vec_t *vec);
+uint8_t *prick_vec_data(prick_vec_t *vec);
 void prick_vec_ensure_capacity(prick_vec_t *vec, uint64_t capacity);
 void prick_vec_ensure_free(prick_vec_t *vec, uint64_t size);
 void prick_vec_free(prick_vec_t *vec);
 void prick_vec_clone(prick_vec_t *v2, prick_vec_t *v1);
+void *prick_vec_pop(prick_vec_t *vec, size_t member_size);
+size_t prick_vec_find(prick_vec_t *vec, void *ptr, size_t ptrsize);
 
 #define PRICK_VEC_GET(VEC, INDEX, TYPE) (((TYPE *)prick_vec_data(VEC))[INDEX])
 
@@ -81,7 +86,7 @@ void prick_vec_append_byte(prick_vec_t *vec, uint8_t byte)
   ++vec->size;
 }
 
-void *prick_vec_data(prick_vec_t *vec)
+uint8_t *prick_vec_data(prick_vec_t *vec)
 {
   if (!vec)
     return NULL;
@@ -144,6 +149,36 @@ void prick_vec_clone(prick_vec_t *v2, prick_vec_t *v1)
   if (!v1 || !v2)
     return;
   prick_vec_append(v2, prick_vec_data(v1), v1->size);
+}
+
+void *prick_vec_pop(prick_vec_t *vec, size_t member_size)
+{
+  if (vec->size < member_size)
+  {
+    return NULL;
+  }
+  vec->size -= member_size;
+  return prick_vec_data(vec) + vec->size;
+}
+
+size_t prick_vec_find(prick_vec_t *vec, void *ptr, size_t ptrsize)
+{
+  if (vec->size < ptrsize)
+  {
+    return vec->size + 1;
+  }
+
+  uint8_t *base = prick_vec_data(vec);
+  for (size_t i = 0; i < vec->size; i += ptrsize)
+  {
+    void *member = base + i;
+    if (!memcmp(member, ptr, ptrsize))
+    {
+      return i;
+    }
+  }
+
+  return vec->size + 1;
 }
 
 #undef MAX
