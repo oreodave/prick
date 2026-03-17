@@ -9,6 +9,11 @@
     #include "prick_arena.h"
  in one of your code units.
 
+ To remove the `prick_` namespacing, please put:
+    #define PRICK_SHORTHAND
+ in any files before including prick_arena.h.  Standard preprocesser rules apply
+ with regards to hierarchy.
+
  This library defines both:
  - A simple bump allocator for regions, with the ability to attach more regions
    via a linked list in case the current region when the current region is full.
@@ -187,6 +192,17 @@ void prick_arena_free(prick_arena_t *arena)
   prick_region_delete_rec(arena->beg);
   memset(arena, 0, sizeof(*arena));
 }
+
+#endif
+
+#ifdef PRICK_SHORTHAND
+
+typedef prick_arena_region_t arena_region_t;
+typedef prick_arena_t arena_t;
+#define arena_alloc   prick_arena_alloc
+#define arena_realloc prick_arena_realloc
+#define arena_reset   prick_arena_reset
+#define arena_free    prick_arena_free
 
 #endif
 
