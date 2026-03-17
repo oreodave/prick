@@ -9,6 +9,11 @@
     #include "prick_darr.h"
  in one of your code units.
 
+ To remove the `prick_` namespacing, please put:
+    #define PRICK_SHORTHAND
+ in any files before including prick_darr.h.  Standard preprocesser rules apply
+ with regards to hierarchy.
+
  This library defines a dynamic array purely on the heap.  Both the raw data for
  the array as well as the metadata are in one allocation.  Consumers of the
  library will only ever need to deal with the former component i.e. they'll only
@@ -25,7 +30,6 @@
 
  Tasks:
  - TODO: Implement ability to use a custom allocator.
- - TODO: QoL shorthand macro.
  */
 
 #ifndef PRICK_DARR_H
@@ -146,6 +150,21 @@ void prick_darr_clone(void **dest, void **src)
 #undef MIN
 
 #endif
+
+#ifdef PRICK_SHORTHAND
+#endif
+
+typedef prick_darr_t darr_t;
+
+#define DARR_GET              PRICK_DARR_GET
+#define DARR_SIZE             PRICK_DARR_SIZE
+#define DARR_CAP              PRICK_DARR_CAP
+#define darr_make             prick_darr_make
+#define darr_free             prick_darr_free
+#define darr_append_byte      prick_darr_append_byte
+#define darr_append           prick_darr_append
+#define darr_clone            prick_darr_clone
+#define darr_ensure_remaining prick_darr_ensure_remaining
 
 #endif
 
