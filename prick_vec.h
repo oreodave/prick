@@ -9,6 +9,11 @@
     #include "prick_vec.h"
  in one of your code units.
 
+ To remove the `prick_` namespacing, please put:
+    #define PRICK_SHORTHAND
+ in any files before including prick_vec.h.  Standard preprocesser rules apply
+ with regards to hierarchy.
+
  This library defines another form of dynamically sized array as opposed to
  prick_darr.h.  This one is closer to the one classically implemented by most; a
  structure with some metadata and a pointer to the raw buffer.  This way,
@@ -182,6 +187,22 @@ size_t prick_vec_find(prick_vec_t *vec, void *ptr, size_t ptrsize)
 }
 
 #undef MAX
+#endif
+
+#ifdef PRICK_SHORTHAND
+
+typedef prick_vec_t vec_t;
+#define vec_append          prick_vec_append
+#define vec_append_byte     prick_vec_append_byte
+#define vec_data            prick_vec_data
+#define vec_ensure_capacity prick_vec_ensure_capacity
+#define vec_ensure_free     prick_vec_ensure_free
+#define vec_free            prick_vec_free
+#define vec_clone           prick_vec_clone
+#define vec_pop             prick_vec_pop
+#define vec_find            prick_vec_find
+#define VEC_GET             PRICK_VEC_GET
+
 #endif
 
 #endif
