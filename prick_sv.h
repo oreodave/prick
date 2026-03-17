@@ -9,12 +9,14 @@
     #include "prick_sv.h"
  in one of your code units.
 
+ To remove the `prick_` namespacing, please put:
+    #define PRICK_SHORTHAND
+ in any files before including prick_sv.h.  Standard preprocesser rules apply
+ with regards to hierarchy.
+
  This is a simple read-only string view library.  It defines some extremely
  common functions you'd expect for a string view library, excluding any that
  require allocation.
-
- Tasks:
- - TODO: QoL shorthand macro.
  */
 
 #ifndef PRICK_SV_H
@@ -100,6 +102,22 @@ prick_sv_t prick_sv_while(prick_sv_t sv, const char *accept)
 
   return prick_sv_truncate(sv, offset);
 }
+
+#endif
+
+#ifdef PRICK_SHORTHAND
+
+typedef prick_sv_t sv_t;
+#define SV            PRICK_SV
+#define SV_AUTO       PRICK_SV_AUTO
+#define SV_FMT        PRICK_SV_FMT
+#define PR_SV         PR_PRICK_SV
+#define sv_chop_left  prick_sv_chop_left
+#define sv_chop_right prick_sv_chop_right
+#define sv_truncate   prick_sv_truncate
+#define sv_substr     prick_sv_substr
+#define sv_till       prick_sv_till
+#define sv_while      prick_sv_while
 
 #endif
 
