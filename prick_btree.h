@@ -9,13 +9,17 @@
     #include "prick_btree.h"
  in one of your code units.
 
+ To remove the `prick_` namespacing, please put:
+    #define PRICK_SHORTHAND
+ in any files before including prick_btree.h.  Standard preprocesser rules apply
+ with regards to hierarchy.
+
  An ordered binary tree implementation, allowing the use of custom comparators
  and allocators.
 
  Tasks:
  - TODO: Pack user custom functions (allocate, comparison, etc) into a
    structure.
- - TODO: QoL shorthand macro.
  */
 
 #ifndef PRICK_BTREE_H
@@ -145,6 +149,23 @@ void prick_btree_print(prick_bnode_t *root, FILE *fp,
 
   fprintf(fp, ")");
 }
+
+#endif
+
+#ifdef PRICK_SHORTHAND
+
+typedef prick_bnode_t bnode_t;
+
+typedef prick_btree_comp_fn btree_comp_fn;
+typedef prick_btree_alloc_fn btree_alloc_fn;
+typedef prick_btree_free_fn btree_free_fn;
+typedef prick_btree_print_fn btree_print_fn;
+
+#define btree_insert       prick_btree_insert;
+#define btree_right_rotate prick_btree_right_rotate;
+#define btree_left_rotate  prick_btree_left_rotate;
+#define btree_print        prick_btree_print;
+#define btree_free         prick_btree_free;
 
 #endif
 
