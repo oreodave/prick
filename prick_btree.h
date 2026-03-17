@@ -11,6 +11,10 @@
 
  An ordered binary tree implementation, allowing the use of custom comparators
  and allocators.
+
+ Tasks:
+ - TODO: Pack user custom functions (allocate, comparison, etc) into a
+   structure.
  */
 
 #ifndef PRICK_BTREE_H

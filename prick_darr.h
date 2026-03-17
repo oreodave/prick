@@ -22,6 +22,10 @@
 
  You may want to consider prick_vec.h if you want to more explicit control of
  the dynamic array, and would like a stable pointer to the container itself.
+
+ Tasks:
+ - TODO: Implement ability to use a custom allocator.
+ - TODO: QoL shorthand macro.
  */
 
 #ifndef PRICK_DARR_H
